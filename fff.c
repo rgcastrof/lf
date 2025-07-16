@@ -89,9 +89,20 @@ dfs(Context *c)
     return;
 }
 
+void
+usage()
+{
+    printf("Usage: fff [dir] [file]\n");
+    printf("if a directory is not passed as an argument, fff will look in the current directory\n\n");
+}
+
 int
 main(int argc, char *argv[])
 {
+    if (argc == 1 || argc > 3) {
+        usage();
+        return EXIT_SUCCESS;
+    }
     Context *c = NULL;
     if (argc == 2) {
         if (strcmp(argv[1], "-v") == 0) {
