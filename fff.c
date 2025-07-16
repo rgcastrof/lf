@@ -5,13 +5,15 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#define VERSION "0.0.4"
+#define VERSION "0.0.5"
 
 typedef struct Context {
     char *base_path;
     char *current_path;
     size_t path_size;
     const char *file;
+    int found;
+    int limit;
 } Context;
 
 Context*
@@ -35,6 +37,7 @@ create_context(char *path, const char *file)
     strcpy(c->current_path, path);
     c->path_size = strlen(path) + 1;
     c->file = file;
+    c->found = 0;
     return c;
 }
 
@@ -60,9 +63,12 @@ dfs(Context *c)
         }
 
         if (entry->d_type == DT_REG && strcmp(entry->d_name, c->file) == 0) {
-            closedir(dir);
             printf("%s/%s\n", c->current_path, c->file);
-            return;
+            c->found++;
+            if (c->limit > 0 && c->found >= c->limit) {
+                closedir(dir);
+                return;
+            }
         }
 
         if (entry->d_type == DT_DIR) {
@@ -71,6 +77,7 @@ dfs(Context *c)
             if (reserve > c->path_size) {
                 char *temp = realloc(c->current_path, reserve);
                 if (!temp) {
+                    closedir(dir);
                     return;
                 }
                 c->current_path = temp;
@@ -81,6 +88,9 @@ dfs(Context *c)
             }
             strcat(c->current_path, entry->d_name);
             dfs(c);
+            if (c->limit > 0 && c->found >= c->limit) {
+                return;
+            }
             c->current_path[last_size] = '\0';
         }
     }
@@ -90,38 +100,77 @@ dfs(Context *c)
 }
 
 void
-usage()
+usage(const char *command)
 {
-    printf("Usage: fff [dir] [file]\n");
-    printf("if a directory is not passed as an argument, fff will look in the current directory\n\n");
+    printf("Usage: %s -d [dir] -f [file]\n", command);
+    printf("if a directory is not passed as an argument, %s will look in the current directory\n\n", command);
+    printf("Type %s -h to see a list of all options.\n", command);
+}
+
+void
+help(const char *command)
+{
+    printf("usage: %s -d [dir] -f [file]\n\n", command);
+    printf("%s version: %s\n\n", command, VERSION);
+    printf("options:\n");
+    printf("-h,            show this help message and exit\n");
+    printf("-f,            specify a file\n");
+    printf("-d,            specify a directory\n");
+    printf("-l,            specify total lines\n");
 }
 
 int
 main(int argc, char *argv[])
 {
-    if (argc == 1 || argc > 3) {
-        usage();
+    const char* file = NULL;
+    char *start_dir =  NULL;
+    int limit = -1;
+    Context *c = NULL;
+    int opt;
+    int free_start_dir = 0;
+    if (argc == 1) {
+        usage(argv[0]);
         return EXIT_SUCCESS;
     }
-    Context *c = NULL;
-    if (argc == 2) {
-        if (strcmp(argv[1], "-v") == 0) {
-            printf("fff version: %s\n", VERSION);
-            return EXIT_SUCCESS;
-        } else {
-            char cwd[PATH_MAX];
-            if (getcwd(cwd, sizeof(cwd)) != NULL) {
-                c = create_context(cwd, argv[1]);
-                dfs(c);
-            } else {
-                perror("getcwd");
-                return 1;
-            }
+    
+    while ((opt = getopt(argc, argv, "f:d:l:h")) != -1) {
+        switch (opt) {
+            case 'f':
+                file = optarg;
+                break;
+            case 'd':
+                start_dir = optarg;
+                break;
+            case 'l':
+                limit = atoi(optarg);
+                break;
+            case 'h':
+                help(argv[0]);
+                return EXIT_SUCCESS;
+            default:
+                printf("type %s -h for help\n", argv[0]);
+                return EXIT_SUCCESS;
         }
-    } else if (argc == 3) {
-        c = create_context(argv[1], argv[2]);
-        dfs(c);
     }
+    if (!start_dir) {
+        start_dir = getcwd(NULL, 0);
+        if(!start_dir) {
+            perror("getcwd");
+            return EXIT_FAILURE;
+        }
+        free_start_dir = 1;
+    }
+    if (!file) {
+        printf("error: a file must be specified\n");
+        if (free_start_dir)
+            free(start_dir);
+        return EXIT_FAILURE;
+    }
+    c = create_context(start_dir, file);
+    c->limit = limit;
+    dfs(c);
     destroy_context(c);
+    if (free_start_dir)
+        free(start_dir);
     return 0;
 }
