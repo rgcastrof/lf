@@ -46,12 +46,12 @@ destroy_context(Context *c)
     free(c);
 }
 
-int
+void
 dfs(Context *c)
 {
     DIR* dir = opendir(c->current_path);
     if (!dir)
-        return 0;
+        return;
 
     struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
@@ -61,7 +61,8 @@ dfs(Context *c)
 
         if (entry->d_type == DT_REG && strcmp(entry->d_name, c->file) == 0) {
             closedir(dir);
-            return 1;
+            printf("%s/%s\n", c->current_path, c->file);
+            return;
         }
 
         if (entry->d_type == DT_DIR) {
@@ -70,7 +71,7 @@ dfs(Context *c)
             if (reserve > c->path_size) {
                 char *temp = realloc(c->current_path, reserve);
                 if (!temp) {
-                    return 0;
+                    return;
                 }
                 c->current_path = temp;
                 c->path_size = reserve;
@@ -79,15 +80,13 @@ dfs(Context *c)
                 strcat(c->current_path, "/");
             }
             strcat(c->current_path, entry->d_name);
-            if (dfs(c))
-                return 1;
-
+            dfs(c);
             c->current_path[last_size] = '\0';
         }
     }
 
     closedir(dir);
-    return 0;
+    return;
 }
 
 int
@@ -102,9 +101,7 @@ main(int argc, char *argv[])
             char cwd[PATH_MAX];
             if (getcwd(cwd, sizeof(cwd)) != NULL) {
                 c = create_context(cwd, argv[1]);
-                if (dfs(c)) {
-                    printf("%s/%s\n", c->current_path, argv[1]);
-                }
+                dfs(c);
             } else {
                 perror("getcwd");
                 return 1;
@@ -112,10 +109,7 @@ main(int argc, char *argv[])
         }
     } else if (argc == 3) {
         c = create_context(argv[1], argv[2]);
-        if (dfs(c)) {
-            printf("%s/%s\n", c->current_path, argv[2]);
-        }
-
+        dfs(c);
     }
     destroy_context(c);
     return 0;
