@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#define VERSION "0.0.3"
+#define VERSION "0.0.4"
 
 typedef struct Context {
     char *base_path;
@@ -95,7 +95,7 @@ main(int argc, char *argv[])
     Context *c = NULL;
     if (argc == 2) {
         if (strcmp(argv[1], "-v") == 0) {
-            printf("version: %s\n", VERSION);
+            printf("fff version: %s\n", VERSION);
             return EXIT_SUCCESS;
         } else {
             char cwd[PATH_MAX];
