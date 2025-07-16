@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#define VERSION "0.0.1"
+#define VERSION "0.0.3"
 
 typedef struct Context {
     char *base_path;
@@ -99,18 +99,23 @@ main(int argc, char *argv[])
             printf("version: %s\n", VERSION);
             return EXIT_SUCCESS;
         } else {
-            const char* file = argv[1];
             char cwd[PATH_MAX];
             if (getcwd(cwd, sizeof(cwd)) != NULL) {
-                c = create_context(cwd, file);
+                c = create_context(cwd, argv[1]);
                 if (dfs(c)) {
-                    printf("%s/%s\n", c->current_path, file);
+                    printf("%s/%s\n", c->current_path, argv[1]);
                 }
             } else {
                 perror("getcwd");
                 return 1;
             }
         }
+    } else if (argc == 3) {
+        c = create_context(argv[1], argv[2]);
+        if (dfs(c)) {
+            printf("%s/%s\n", c->current_path, argv[2]);
+        }
+
     }
     destroy_context(c);
     return 0;
