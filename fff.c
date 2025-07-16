@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <unistd.h>
+#include <linux/limits.h>
 
 #define VERSION "0.0.1"
 
@@ -10,7 +12,6 @@ typedef struct Context {
     char *current_path;
     size_t path_size;
     const char *file;
-    int found;
 } Context;
 
 Context*
@@ -34,7 +35,6 @@ create_context(char *path, const char *file)
     strcpy(c->current_path, path);
     c->path_size = strlen(path) + 1;
     c->file = file;
-    c->found = 0;
     return c;
 }
 
@@ -70,9 +70,6 @@ dfs(Context *c)
             if (reserve > c->path_size) {
                 char *temp = realloc(c->current_path, reserve);
                 if (!temp) {
-                    free(c->current_path);
-                    free(c->base_path);
-                    free(c);
                     return 0;
                 }
                 c->current_path = temp;
@@ -96,16 +93,22 @@ dfs(Context *c)
 int
 main(int argc, char *argv[])
 {
-    Context *c;
+    Context *c = NULL;
     if (argc == 2) {
         if (strcmp(argv[1], "-v") == 0) {
             printf("version: %s\n", VERSION);
             return EXIT_SUCCESS;
         } else {
             const char* file = argv[1];
-            c = create_context("/", file);
-            if (dfs(c)) {
-                printf("%s/%s\n", c->current_path, file);
+            char cwd[PATH_MAX];
+            if (getcwd(cwd, sizeof(cwd)) != NULL) {
+                c = create_context(cwd, file);
+                if (dfs(c)) {
+                    printf("%s/%s\n", c->current_path, file);
+                }
+            } else {
+                perror("getcwd");
+                return 1;
             }
         }
     }
