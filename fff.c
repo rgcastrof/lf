@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#define VERSION "0.0.5"
+#define VERSION "0.0.6"
 
 typedef struct Context {
     char *base_path;
@@ -15,6 +15,16 @@ typedef struct Context {
     int found;
     int limit;
 } Context;
+
+typedef void (*Callback) (Context *, const char *);
+
+Context* create_context(char *path, const char *file);
+void destroy_context(Context *c);
+void check_file(Context *c, const char *file);
+void dfs(Context *c, Callback cb);
+void search_file(Context *c);
+void usage(const char *command);
+void help(const char *command);
 
 Context*
 create_context(char *path, const char *file)
@@ -50,7 +60,16 @@ destroy_context(Context *c)
 }
 
 void
-dfs(Context *c)
+check_file(Context *c, const char *file)
+{
+    if (strcmp(c->file, file) == 0) {
+        printf("%s/%s\n", c->current_path, c->file);
+        c->found++;
+    }
+}
+
+void
+dfs(Context *c, Callback cb)
 {
     DIR* dir = opendir(c->current_path);
     if (!dir)
@@ -62,13 +81,9 @@ dfs(Context *c)
             continue;
         }
 
-        if (entry->d_type == DT_REG && strcmp(entry->d_name, c->file) == 0) {
-            printf("%s/%s\n", c->current_path, c->file);
-            c->found++;
-            if (c->limit > 0 && c->found >= c->limit) {
-                closedir(dir);
-                return;
-            }
+        if (entry->d_type == DT_REG) {
+            cb(c, entry->d_name);
+            continue;
         }
 
         if (entry->d_type == DT_DIR) {
@@ -87,7 +102,7 @@ dfs(Context *c)
                 strcat(c->current_path, "/");
             }
             strcat(c->current_path, entry->d_name);
-            dfs(c);
+            dfs(c, cb);
             if (c->limit > 0 && c->found >= c->limit) {
                 return;
             }
@@ -97,6 +112,12 @@ dfs(Context *c)
 
     closedir(dir);
     return;
+}
+
+void
+search_file(Context *c)
+{
+    dfs(c, check_file);
 }
 
 void
@@ -168,7 +189,7 @@ main(int argc, char *argv[])
     }
     c = create_context(start_dir, file);
     c->limit = limit;
-    dfs(c);
+    search_file(c);
     destroy_context(c);
     if (free_start_dir)
         free(start_dir);
