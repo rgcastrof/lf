@@ -5,7 +5,7 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#define VERSION "0.0.7"
+#define VERSION "0.0.8"
 
 typedef struct Context {
     char *base_path;
@@ -86,7 +86,7 @@ check_file(Context *c, const char *file)
             }
         }
     } else if (c->ext == NULL && c->file != NULL) {
-        if (strcmp(c->file, file) == 0) {
+        if (strstr(file, c->file)) {
             printf("%s/%s\n", c->current_path, file);
             c->found++;
         }
