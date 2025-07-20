@@ -5,29 +5,35 @@
 #include <unistd.h>
 #include <linux/limits.h>
 
-#define VERSION "0.0.6"
+#define VERSION "0.0.7"
 
 typedef struct Context {
     char *base_path;
     char *current_path;
     size_t path_size;
     const char *file;
+    const char *ext;
     int found;
     int limit;
 } Context;
 
 typedef void (*Callback) (Context *, const char *);
 
-Context* create_context(char *path, const char *file);
-void destroy_context(Context *c);
-void check_file(Context *c, const char *file);
-void dfs(Context *c, Callback cb);
-void search_file(Context *c);
-void usage(const char *command);
-void help(const char *command);
+static Context* create_context(char *path, const char *file, const char *ext, int limit);
+static void destroy_context(Context *c);
+static void check_file(Context *c, const char *file);
+static void dfs(Context *c, Callback cb);
+static void search_file(Context *c);
+static void usage(const char *command);
+static void help(const char *command);
 
-Context*
-create_context(char *path, const char *file)
+static const char *exts[] = {
+    ".pdf", ".txt", ".c", ".h", ".jpg", ".png", ".jpeg", ".go", ".java", ".md", ".odt",
+};
+static int n_exts = sizeof(exts) / sizeof(exts[0]);
+
+static Context*
+create_context(char *path, const char *file, const char *ext, int limit)
 {
     Context *c = malloc(sizeof(Context));
     if (!c)
@@ -46,12 +52,14 @@ create_context(char *path, const char *file)
 
     strcpy(c->current_path, path);
     c->path_size = strlen(path) + 1;
+    c->ext = ext;
     c->file = file;
     c->found = 0;
+    c->limit = limit;
     return c;
 }
 
-void
+static void
 destroy_context(Context *c)
 {
     free(c->base_path);
@@ -59,16 +67,33 @@ destroy_context(Context *c)
     free(c);
 }
 
-void
+static void
 check_file(Context *c, const char *file)
 {
-    if (strcmp(c->file, file) == 0) {
-        printf("%s/%s\n", c->current_path, c->file);
-        c->found++;
+    if (c->ext != NULL && c->file == NULL) {
+        int ext_flag = 0;
+        for (int i = 0; i < n_exts; i++) {
+            if (strcmp(c->ext, exts[i]) == 0) {
+                ext_flag = 1;
+                break;
+            }
+        }
+        if (ext_flag) {
+            const char *dot = strrchr(file, '.');
+            if (dot && strcmp(c->ext, dot) == 0) {
+                printf("%s/%s\n", c->current_path, file);
+                c->found++;
+            }
+        }
+    } else if (c->ext == NULL && c->file != NULL) {
+        if (strcmp(c->file, file) == 0) {
+            printf("%s/%s\n", c->current_path, file);
+            c->found++;
+        }
     }
 }
 
-void
+static void
 dfs(Context *c, Callback cb)
 {
     DIR* dir = opendir(c->current_path);
@@ -114,13 +139,13 @@ dfs(Context *c, Callback cb)
     return;
 }
 
-void
+static void
 search_file(Context *c)
 {
     dfs(c, check_file);
 }
 
-void
+static void
 usage(const char *command)
 {
     printf("Usage: %s -d [dir] -f [file]\n", command);
@@ -128,7 +153,7 @@ usage(const char *command)
     printf("Type %s -h to see a list of all options.\n", command);
 }
 
-void
+static void
 help(const char *command)
 {
     printf("usage: %s -d [dir] -f [file]\n\n", command);
@@ -138,6 +163,7 @@ help(const char *command)
     printf("-f,            specify a file\n");
     printf("-d,            specify a directory\n");
     printf("-l,            specify total lines\n");
+    printf("-e,            search files by their extension\n");
 }
 
 int
@@ -145,6 +171,7 @@ main(int argc, char *argv[])
 {
     const char* file = NULL;
     char *start_dir =  NULL;
+    const char *ext = NULL;
     int limit = -1;
     Context *c = NULL;
     int opt;
@@ -154,7 +181,7 @@ main(int argc, char *argv[])
         return EXIT_SUCCESS;
     }
     
-    while ((opt = getopt(argc, argv, "f:d:l:h")) != -1) {
+    while ((opt = getopt(argc, argv, "f:d:l:e:h")) != -1) {
         switch (opt) {
             case 'f':
                 file = optarg;
@@ -164,6 +191,9 @@ main(int argc, char *argv[])
                 break;
             case 'l':
                 limit = atoi(optarg);
+                break;
+            case 'e':
+                ext = optarg;
                 break;
             case 'h':
                 help(argv[0]);
@@ -181,14 +211,11 @@ main(int argc, char *argv[])
         }
         free_start_dir = 1;
     }
-    if (!file) {
-        printf("error: a file must be specified\n");
-        if (free_start_dir)
-            free(start_dir);
+    if (ext && file) {
+        printf("Error: -f and -e parameters cannot be used at the same time\n");
         return EXIT_FAILURE;
     }
-    c = create_context(start_dir, file);
-    c->limit = limit;
+    c = create_context(start_dir, file, ext, limit);
     search_file(c);
     destroy_context(c);
     if (free_start_dir)
