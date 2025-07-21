@@ -3,9 +3,8 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <linux/limits.h>
 
-#define VERSION "0.0.8"
+#define VERSION "0.0.9"
 
 typedef struct Context {
     char *base_path;
