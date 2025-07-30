@@ -6,6 +6,8 @@
 
 #define VERSION "0.0.9"
 
+#define BUFFER_SIZE 4096
+
 typedef struct Context {
     char *base_path;
     char *current_path;
@@ -27,7 +29,7 @@ static void usage(const char *command);
 static void help(const char *command);
 
 static const char *exts[] = {
-    ".pdf", ".txt", ".c", ".h", ".jpg", ".png", ".jpeg", ".go", ".java", ".md", ".odt",
+    ".pdf", ".txt", ".c", ".h", ".jpg", ".png", ".jpeg", ".go", ".java", ".md", ".odt", ".mp4", ".mkv"
 };
 static int n_exts = sizeof(exts) / sizeof(exts[0]);
 
@@ -42,7 +44,7 @@ create_context(char *path, const char *file, const char *ext, int limit)
         free(c);
         return NULL;
     }
-    c->current_path = malloc(strlen(path) + 1);
+    c->current_path = malloc(BUFFER_SIZE);
     if (!c->current_path) {
         free(c->base_path);
         free(c);
@@ -50,7 +52,7 @@ create_context(char *path, const char *file, const char *ext, int limit)
     }
 
     strcpy(c->current_path, path);
-    c->path_size = strlen(path) + 1;
+    c->path_size = BUFFER_SIZE;
     c->ext = ext;
     c->file = file;
     c->found = 0;
@@ -112,7 +114,7 @@ dfs(Context *c, Callback cb)
 
         if (entry->d_type == DT_DIR) {
             size_t last_size = strlen(c->current_path);
-            size_t reserve = last_size + strlen(entry->d_name) + 2;
+            size_t reserve = last_size * 2;
             if (reserve > c->path_size) {
                 char *temp = realloc(c->current_path, reserve);
                 if (!temp) {
