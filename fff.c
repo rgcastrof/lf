@@ -64,8 +64,12 @@ isfound(unsigned char dirtype, char *dirname, const char *file)
 }
 
 static void
-find(const char *path, const char *file)
+printerr(const char *fmt, ...)
 {
-	dfs(path, file);
+	va_list args;
+	fputs("Error: ", stderr);
+	va_start(args, fmt);
+	vfprintf(stderr, fmt, args);
+	va_end(args);
+	fputc('\n', stderr);
 }
-
