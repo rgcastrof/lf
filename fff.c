@@ -7,6 +7,7 @@
 #include <sys/stat.h>
 
 #define MAXLEN 4096
+#define VERSION "fff-0.9"
 
 static void find(const char *path, const char *file);
 static int isdir(const char *arg);
