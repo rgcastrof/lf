@@ -76,8 +76,7 @@ static int
 isdotdir(unsigned char dirtype, const char *dirname)
 {
 	if (dirtype == DT_DIR &&
-	(strcmp(dirname, ".") == 0 ||
-	 strcmp(dirname, "..") == 0)) {
+	(!strcmp(dirname, ".") || !strcmp(dirname, ".."))) {
 		return 1;
 	}
 	return 0;
@@ -86,7 +85,7 @@ isdotdir(unsigned char dirtype, const char *dirname)
 static int
 isfound(unsigned char dirtype, const char *dirname, const char *file)
 {
-	if (dirtype == DT_REG && strcmp(dirname, file) == 0)
+	if (dirtype == DT_REG && !strcmp(dirname, file))
 		return 1;
 	return 0;
 }
