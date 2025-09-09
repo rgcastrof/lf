@@ -57,7 +57,11 @@ dfs(const char *path, const char *file)
 			continue;
 
 		char fullpath[MAXLEN];
-		snprintf(fullpath, MAXLEN, "%s/%s", path, entry->d_name);
+		if (path && path[strlen(path)-1] == '/')
+			snprintf(fullpath, MAXLEN, "%s%s", path, entry->d_name);
+		else
+			snprintf(fullpath, MAXLEN, "%s/%s", path, entry->d_name);
+
 		if (isfound(entry->d_type, entry->d_name, file) || emptyname(file))
 			printf("%s\n", fullpath);
 
