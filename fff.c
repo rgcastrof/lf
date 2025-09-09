@@ -23,23 +23,23 @@ static void
 dfs(const char *path, const char *file)
 {
 	DIR *dir = opendir(path);
-	if (!dir) return;
+	if (!dir) {
+		printerr("Could not open dir: %s", path);
+		return;
+	};
 
 	struct dirent *entry;
 	while ((entry = readdir(dir))) {
 		if (isdotdir(entry->d_type, entry->d_name))
 			continue;
-
-		if (isfound(entry->d_type, entry->d_name, file)) {
+		else {
 			char fullpath[MAXLEN];
 			snprintf(fullpath, MAXLEN, "%s/%s", path, entry->d_name);
-			printf("%s\n", fullpath);
-		}
+			if (isfound(entry->d_type, entry->d_name, file) || emptyname(file))
+				printf("%s\n", fullpath);
 
-		if (entry->d_type == DT_DIR) {
-			char newpath[MAXLEN];
-			snprintf(newpath, MAXLEN, "%s/%s", path, entry->d_name);
-			dfs(newpath, file);
+			if (entry->d_type == DT_DIR)
+				dfs(fullpath, file);
 		}
 	}
 
