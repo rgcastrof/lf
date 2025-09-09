@@ -1,4 +1,4 @@
-# fff: fast file finder
+# lf: list files
 
 Minimalist clone of the `find` command
 
@@ -7,13 +7,13 @@ Minimalist clone of the `find` command
 #### Git
 
 ```sh
-git clone https://github.com/rgcastrof/fff.git && cd fff && sudo make install
+git clone https://github.com/rgcastrof/lf.git && cd lf && sudo make install
 ```
 
 ## Usage
 
 ```sh
-fff [path] [filename]
+lf [path] [filename]
 ```
 
 
