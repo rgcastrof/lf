@@ -1,15 +1,15 @@
 .POSIX:
 
-NAME    = fff
-VERSION = 0.0.1
+NAME    = lf
+VERSION = 0.9
 
 CC     = cc
 CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE -Wall -Wextra -pedantic
 
 BIN_DIR = /usr/local/bin
 
-SRC = fff.c
-OBJ = fff.o
+SRC = lf.c
+OBJ = lf.o
 
 all: $(NAME)
 $(NAME): $(OBJ)

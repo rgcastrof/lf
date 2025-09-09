@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 
 #define MAXLEN 4096
-#define VERSION "fff-0.9"
+#define VERSION "lf-0.9"
 
 static void find(const char *path, const char *file);
 static int isdir(const char *arg);
@@ -121,7 +121,7 @@ fatal(FILE *stream, const char *fmt, ...)
 static void
 usage(void)
 {
-	printf("Usage: fff [-h] [-v] [path] [filename]\n\n"
+	printf("Usage: lf [-h] [-v] [path] [filename]\n\n"
 			"Options:\n"
 			"  -h		Show this help message and exit\n"
 			"  -v		Show version\n");
