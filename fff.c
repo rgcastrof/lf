@@ -1,8 +1,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #define MAXLEN 4096
 
@@ -18,34 +20,35 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-	if (argc <= 2) {
-		char cwd[MAXLEN];
-		if (!getcwd(cwd, MAXLEN)) {
-			printerr("Failed getcwd");
-			return 1;
-		} else {
-			if (argc == 1)
-				find(cwd, "");
-			else
-				find(cwd, argv[1]);
-			return 0;
-		}
+	char cwd[MAXLEN];
+
+	if (argc == 1) {
+		if (!getcwd(cwd, MAXLEN)) fatal(stderr, "Failed getcwd");
+		find(cwd, "");
+		return EXIT_SUCCESS;
 	}
-	
+	if (argc == 2) {
+		if (!strcmp(argv[1], "-v")) {
+			puts(VERSION);
+			return EXIT_SUCCESS;
+		}
+		else if (!strcmp(argv[1], "-h")) usage();
+		else if (isdir(argv[1])) find(argv[1], "");
+		else {
+			if (!getcwd(cwd, MAXLEN)) fatal(stderr, "Failed getcwd");
+			find(cwd, argv[1]);
+		}
+		return EXIT_SUCCESS;
+	}
 	find(argv[1], argv[2]);
-	return 0;
+	return EXIT_SUCCESS;
 }
 
 static void
 find(const char *path, const char *file)
 {
-	dfs(path, file);
-}
-
-static void
-dfs(const char *path, const char *file)
-{
 	DIR *dir = opendir(path);
+
 	if (!dir) {
 		error("Could not open dir: %s", path);
 		return;
