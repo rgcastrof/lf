@@ -57,20 +57,13 @@ find(const char *path, const char *file)
 
 	struct dirent *entry;
 	while ((entry = readdir(dir))) {
-		if (isdotdir(entry->d_type, entry->d_name))
-			continue;
+		if (isdotdir(entry->d_type, entry->d_name)) continue;
 
 		char fullpath[MAXLEN];
-		if (path && path[strlen(path)-1] == '/')
-			snprintf(fullpath, MAXLEN, "%s%s", path, entry->d_name);
-		else
-			snprintf(fullpath, MAXLEN, "%s/%s", path, entry->d_name);
+		snprintf(fullpath, MAXLEN, "%s%s%s", path, (path[strlen(path)-1] == '/') ? "" : "/", entry->d_name);
 
-		if (isfound(entry->d_type, entry->d_name, file) || emptyname(file))
-			printf("%s\n", fullpath);
-
-		if (entry->d_type == DT_DIR)
-			dfs(fullpath, file);
+		if (matchfile(entry->d_type, entry->d_name, file) || isempty(file)) printf("%s\n", fullpath);
+		if (entry->d_type == DT_DIR) find(fullpath, file);
 	}
 
 	closedir(dir);
@@ -93,17 +86,13 @@ isdotdir(unsigned char type, const char *name)
 static int
 matchfile(unsigned char type, const char *name, const char *file)
 {
-	if (dirtype == DT_REG && !strcmp(dirname, file))
-		return 1;
-	return 0;
+	return type == DT_REG && !strcmp(name, file);
 }
 
 static int
 isempty(const char *file)
 {
-	if (file && file[0] == '\0')
-		return 1;
-	return 0;
+	return file && file[0] == '\0';
 }
 
 static void
