@@ -65,6 +65,14 @@ isfound(unsigned char dirtype, const char *dirname, const char *file)
 	return 0;
 }
 
+static int
+emptyname(const char *file)
+{
+	if (!file)
+		return 1;
+	return 0;
+}
+
 static void
 printerr(const char *fmt, ...)
 {
