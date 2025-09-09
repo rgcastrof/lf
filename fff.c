@@ -4,10 +4,12 @@
 
 #define MAXLEN 1000
 
-static void dfs(const char *path, const char *file);
-static int isdotdir(unsigned char dirtype, char *dirname);
-static int isfound(unsigned char dirtype, char *dirname, const char *file);
 static void find(const char *path, const char *file);
+static void dfs(const char *path, const char *file);
+static int isdotdir(unsigned char dirtype, const char *dirname);
+static int isfound(unsigned char dirtype, const char *dirname, const char *file);
+static int emptyname(const char *file);
+static void printerr(const char *fmt, ...);
 
 int
 main(int argc, char *argv[])
@@ -45,7 +47,7 @@ dfs(const char *path, const char *file)
 }
 
 static int
-isdotdir(unsigned char dirtype, char *dirname)
+isdotdir(unsigned char dirtype, const char *dirname)
 {
 	if (dirtype == DT_DIR &&
 	(strcmp(dirname, ".") == 0 ||
@@ -56,7 +58,7 @@ isdotdir(unsigned char dirtype, char *dirname)
 }
 
 static int
-isfound(unsigned char dirtype, char *dirname, const char *file)
+isfound(unsigned char dirtype, const char *dirname, const char *file)
 {
 	if (dirtype == DT_REG && strcmp(dirname, file) == 0)
 		return 1;
