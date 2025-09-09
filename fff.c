@@ -107,13 +107,15 @@ error(const char *fmt, ...)
 }
 
 static void
-die(const char *fmt, ...)
+fatal(FILE *stream, const char *fmt, ...)
 {
 	va_list args;
+	fputs("Error: ", stream);
 	va_start(args, fmt);
-	vprintf(fmt, args);
+	vfprintf(stream, fmt, args);
 	va_end(args);
-	exit(EXIT_SUCCESS);
+	fputc('\n', stream);
+	exit(EXIT_FAILURE);
 }
 
 static void
