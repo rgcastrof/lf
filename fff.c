@@ -23,7 +23,7 @@ main(int argc, char *argv[])
 			return 1;
 		} else {
 			if (argc == 1)
-				find(cwd, NULL);
+				find(cwd, "");
 			else
 				find(cwd, argv[1]);
 			return 0;
@@ -89,7 +89,7 @@ isfound(unsigned char dirtype, const char *dirname, const char *file)
 static int
 emptyname(const char *file)
 {
-	if (!file)
+	if (file && file[0] == '\0')
 		return 1;
 	return 0;
 }
