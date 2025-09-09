@@ -7,12 +7,12 @@
 #define MAXLEN 4096
 
 static void find(const char *path, const char *file);
-static void dfs(const char *path, const char *file);
-static int isdotdir(unsigned char dirtype, const char *dirname);
-static int isfound(unsigned char dirtype, const char *dirname, const char *file);
-static int emptyname(const char *file);
-static void printerr(const char *fmt, ...);
-static void die(const char *fmt, ...);
+static int isdir(const char *arg);
+static int isdotdir(unsigned char type, const char *name);
+static int matchfile(unsigned char type, const char *name, const char *file);
+static int isempty(const char *file);
+static void error(const char *fmt, ...);
+static void fatal(FILE *stream, const char *fmt, ...);
 static void usage(void);
 
 int
@@ -47,7 +47,7 @@ dfs(const char *path, const char *file)
 {
 	DIR *dir = opendir(path);
 	if (!dir) {
-		printerr("Could not open dir: %s", path);
+		error("Could not open dir: %s", path);
 		return;
 	};
 
@@ -73,17 +73,21 @@ dfs(const char *path, const char *file)
 }
 
 static int
-isdotdir(unsigned char dirtype, const char *dirname)
+isdir(const char *arg)
 {
-	if (dirtype == DT_DIR &&
-	(!strcmp(dirname, ".") || !strcmp(dirname, ".."))) {
-		return 1;
-	}
-	return 0;
+	struct stat pathstat;
+	if (stat(arg, &pathstat)) fatal(stderr, "Failed to access path");
+	return S_ISDIR(pathstat.st_mode);
 }
 
 static int
-isfound(unsigned char dirtype, const char *dirname, const char *file)
+isdotdir(unsigned char type, const char *name)
+{
+	return type == DT_DIR && (!strcmp(name, ".") || !strcmp(name, ".."));
+}
+
+static int
+matchfile(unsigned char type, const char *name, const char *file)
 {
 	if (dirtype == DT_REG && !strcmp(dirname, file))
 		return 1;
@@ -91,7 +95,7 @@ isfound(unsigned char dirtype, const char *dirname, const char *file)
 }
 
 static int
-emptyname(const char *file)
+isempty(const char *file)
 {
 	if (file && file[0] == '\0')
 		return 1;
@@ -99,7 +103,7 @@ emptyname(const char *file)
 }
 
 static void
-printerr(const char *fmt, ...)
+error(const char *fmt, ...)
 {
 	va_list args;
 	fputs("Error: ", stderr);
