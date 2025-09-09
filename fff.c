@@ -2,7 +2,7 @@
 #include <dirent.h>
 #include <string.h>
 
-#define MAXLEN 1000
+#define MAXLEN 4096
 
 static void find(const char *path, const char *file);
 static void dfs(const char *path, const char *file);
