@@ -12,6 +12,8 @@ static int isdotdir(unsigned char dirtype, const char *dirname);
 static int isfound(unsigned char dirtype, const char *dirname, const char *file);
 static int emptyname(const char *file);
 static void printerr(const char *fmt, ...);
+static void die(const char *fmt, ...);
+static void usage(void);
 
 int
 main(int argc, char *argv[])
@@ -102,4 +104,23 @@ printerr(const char *fmt, ...)
 	vfprintf(stderr, fmt, args);
 	va_end(args);
 	fputc('\n', stderr);
+}
+
+static void
+die(const char *fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+	exit(EXIT_SUCCESS);
+}
+
+static void
+usage(void)
+{
+	die("Usage: fff [-h] [-v] [path] [filename]\n\n"
+			"Options:\n"
+			"  -h		Show this help message and exit\n"
+			"  -v		Show version\n");
 }
