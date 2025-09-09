@@ -121,8 +121,9 @@ fatal(FILE *stream, const char *fmt, ...)
 static void
 usage(void)
 {
-	die("Usage: fff [-h] [-v] [path] [filename]\n\n"
+	printf("Usage: fff [-h] [-v] [path] [filename]\n\n"
 			"Options:\n"
 			"  -h		Show this help message and exit\n"
 			"  -v		Show version\n");
+	exit(EXIT_SUCCESS);
 }
