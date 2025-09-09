@@ -53,15 +53,14 @@ dfs(const char *path, const char *file)
 	while ((entry = readdir(dir))) {
 		if (isdotdir(entry->d_type, entry->d_name))
 			continue;
-		else {
-			char fullpath[MAXLEN];
-			snprintf(fullpath, MAXLEN, "%s/%s", path, entry->d_name);
-			if (isfound(entry->d_type, entry->d_name, file) || emptyname(file))
-				printf("%s\n", fullpath);
 
-			if (entry->d_type == DT_DIR)
-				dfs(fullpath, file);
-		}
+		char fullpath[MAXLEN];
+		snprintf(fullpath, MAXLEN, "%s/%s", path, entry->d_name);
+		if (isfound(entry->d_type, entry->d_name, file) || emptyname(file))
+			printf("%s\n", fullpath);
+
+		if (entry->d_type == DT_DIR)
+			dfs(fullpath, file);
 	}
 
 	closedir(dir);
