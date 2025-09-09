@@ -1,6 +1,8 @@
+#include <stdarg.h>
 #include <stdio.h>
 #include <dirent.h>
 #include <string.h>
+#include <unistd.h>
 
 #define MAXLEN 4096
 
@@ -14,9 +16,28 @@ static void printerr(const char *fmt, ...);
 int
 main(int argc, char *argv[])
 {
-	char fullpath[MAXLEN];
+	if (argc <= 2) {
+		char cwd[MAXLEN];
+		if (!getcwd(cwd, MAXLEN)) {
+			printerr("Failed getcwd");
+			return 1;
+		} else {
+			if (argc == 1)
+				find(cwd, NULL);
+			else
+				find(cwd, argv[1]);
+			return 0;
+		}
+	}
+	
 	find(argv[1], argv[2]);
 	return 0;
+}
+
+static void
+find(const char *path, const char *file)
+{
+	dfs(path, file);
 }
 
 static void
