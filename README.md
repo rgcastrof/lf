@@ -20,6 +20,6 @@ lf [path] [filename]
 ## Uninstallation
 
 ```sh
-cd fff
+cd lf
 sudo make uninstall
 ```
