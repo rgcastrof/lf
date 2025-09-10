@@ -13,12 +13,14 @@ typedef struct {
 	const char *file;
 	int maxdepth;
 	FILE *out;
+	int pflag;
 } Args;
 
 static void initargs(Args *args);
 static void find(const Args *args, const char *currentpath, int depth);
 static int isdotdir(const unsigned char type, const char *name);
 static int matchfile(const unsigned char type, const char *name, const char *file);
+static int matchpartial(const unsigned char type, const char *name, const char *file);
 static int isempty(const char *file);
 static void writefile(FILE **out, char *outfile);
 static void error(const char *fmt, ...);
@@ -38,7 +40,7 @@ main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	while ((opt = getopt(argc, argv, "hvd:o:")) != -1) {
+	while ((opt = getopt(argc, argv, "hvd:o:p")) != -1) {
 		switch (opt) {
 			case 'v':
 				puts(VERSION);
@@ -48,6 +50,9 @@ main(int argc, char *argv[])
 				break;
 			case 'o':
 				outfile = optarg;
+				break;
+			case 'p':
+				args.pflag = 1;
 				break;
 			case 'h':
 			default:
@@ -76,6 +81,7 @@ initargs(Args *args)
 	args->file = "";
 	args->maxdepth = -1;
 	args->out = stdout;
+	args->pflag = 0;
 }
 
 static void
@@ -101,7 +107,8 @@ find(const Args *args, const char *currentpath, int depth)
 			currentpath,
 			(currentpath[strlen(currentpath)-1] == '/') ? "" : "/", entry->d_name);
 
-		if (matchfile(entry->d_type, entry->d_name, args->file) || isempty(args->file))
+		if (matchfile(entry->d_type, entry->d_name, args->file) || isempty(args->file) ||
+		(args->pflag && matchpartial(entry->d_type, entry->d_name, args->file)))
 			fprintf(args->out, "%s\n", fullpath);
 		if (entry->d_type == DT_DIR)
 			find(args, fullpath, depth + 1);
@@ -128,6 +135,12 @@ static int
 matchfile(const unsigned char type, const char *name, const char *file)
 {
 	return type == DT_REG && !strcmp(name, file);
+}
+
+static int
+matchpartial(const unsigned char type, const char *name, const char *file)
+{
+	return type == DT_REG && strstr(name, file);
 }
 
 static int
