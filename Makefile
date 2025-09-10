@@ -1,6 +1,6 @@
 .POSIX:
 
-NAME    = lf
+NAME    = sniff
 VERSION = 1.6
 
 CC     = cc
@@ -8,8 +8,8 @@ CFLAGS = -std=c99 -D_DEFAULT_SOURCE -Wall -Wextra -pedantic -DVERSION=\"$(VERSIO
 
 BIN_DIR = /usr/local/bin
 
-SRC = lf.c
-OBJ = lf.o
+SRC = sniff.c
+OBJ = sniff.o
 
 all: $(NAME)
 $(NAME): $(OBJ)
