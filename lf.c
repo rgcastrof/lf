@@ -8,8 +8,6 @@
 
 #define MAXLEN 4096
 #define VERSION "lf-0.9"
-static int isdotdir(unsigned char type, const char *name);
-static int matchfile(unsigned char type, const char *name, const char *file);
 
 typedef struct {
 	const char *startpath;
@@ -19,6 +17,8 @@ typedef struct {
 } Args;
 
 static void find(const Args *args, const char *currentpath, int depth);
+static int isdotdir(const unsigned char type, const char *name);
+static int matchfile(const unsigned char type, const char *name, const char *file);
 static int isempty(const char *file);
 static void error(const char *fmt, ...);
 static void fatal(FILE *stream, const char *fmt, ...);
@@ -89,13 +89,13 @@ find(const Args *args, const char *currentpath, int depth)
 }
 
 static int
-isdotdir(unsigned char type, const char *name)
+isdotdir(const unsigned char type, const char *name)
 {
 	return type == DT_DIR && (!strcmp(name, ".") || !strcmp(name, ".."));
 }
 
 static int
-matchfile(unsigned char type, const char *name, const char *file)
+matchfile(const unsigned char type, const char *name, const char *file)
 {
 	return type == DT_REG && !strcmp(name, file);
 }
