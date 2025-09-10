@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <sys/stat.h>
 
 #define MAXLEN 4096
 #define VERSION "lf-1.5"
