@@ -21,6 +21,7 @@ static void find(const Args *args, const char *currentpath, int depth);
 static int isdotdir(const unsigned char type, const char *name);
 static int matchfile(const unsigned char type, const char *name, const char *file);
 static int isempty(const char *file);
+static void writefile(FILE **out, char *outfile);
 static void error(const char *fmt, ...);
 static void fatal(FILE *stream, const char *fmt, ...);
 static void usage(void);
@@ -93,7 +94,12 @@ find(const Args *args, const char *currentpath, int depth)
 	closedir(dir);
 }
 
+static void
+writefile(FILE **out, char *outfile)
 {
+	*out = fopen(outfile, "w");
+	if (!(*out))
+		fatal(stderr, "failed to open file");
 }
 
 static int
