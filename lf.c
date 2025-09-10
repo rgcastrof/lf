@@ -29,6 +29,7 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
+	int opt;
 	Args args;
 	char *outfile = NULL;
 	initargs(&args);
@@ -37,20 +38,35 @@ main(int argc, char *argv[])
 		find(&args, args.startpath, 0);
 		return EXIT_SUCCESS;
 	}
-	if (argc == 2) {
-		if (!strcmp(argv[1], "-v")) {
-			puts(VERSION);
-			return EXIT_SUCCESS;
+
+	while ((opt = getopt(argc, argv, "hvd:o:")) != -1) {
+		switch (opt) {
+			case 'v':
+				puts(VERSION);
+				return EXIT_SUCCESS;
+			case 'd':
+				args.maxdepth = atoi(optarg);
+				break;
+			case 'o':
+				outfile = optarg;
+				break;
+			case 'h':
+			default:
+				usage();
 		}
-		else if (!strcmp(argv[1], "-h")) usage();
-		else if (isdir(argv[1])) find(argv[1], "");
-		else {
-			if (!getcwd(cwd, MAXLEN)) fatal(stderr, "Failed getcwd");
-			find(cwd, argv[1]);
-		}
-		return EXIT_SUCCESS;
 	}
-	find(argv[1], argv[2]);
+
+	if (optind < argc)
+		args.startpath = argv[optind];
+	if (optind + 1 < argc)
+		args.file = argv[optind+1];
+	if (outfile)
+		writefile(&args.out, outfile);
+
+	find(&args, args.startpath, 0);
+
+	if (outfile && args.out != stdout)
+		fclose(args.out);
 	return EXIT_SUCCESS;
 }
 
