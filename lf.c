@@ -7,7 +7,7 @@
 #include <sys/stat.h>
 
 #define MAXLEN 4096
-#define VERSION "lf-0.9"
+#define VERSION "lf-1.5"
 
 typedef struct {
 	const char *startpath;
