@@ -1,25 +1,13 @@
-# lf: list files
+sniff - minimal find clone
+--------------------------
 
-Minimalist clone of the `find` command
+sniff is a minimalist clone of the Unix `find` command for searching files and directories.
 
-## Installation
+Installation
+------------
 
-#### Git
-
-```sh
-git clone https://github.com/rgcastrof/lf.git && cd lf && sudo make install
-```
-
-## Usage
+To build and install sniff, run the following commands:
 
 ```sh
-lf [path] [filename]
-```
-
-
-## Uninstallation
-
-```sh
-cd lf
-sudo make uninstall
+make && sudo make install
 ```
