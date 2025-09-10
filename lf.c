@@ -6,7 +6,6 @@
 #include <unistd.h>
 
 #define MAXLEN 4096
-#define VERSION "lf-1.5"
 
 typedef struct {
 	const char *startpath;
@@ -43,7 +42,7 @@ main(int argc, char *argv[])
 	while ((opt = getopt(argc, argv, "hvd:o:p")) != -1) {
 		switch (opt) {
 			case 'v':
-				puts(VERSION);
+				puts("lf-"VERSION);
 				return EXIT_SUCCESS;
 			case 'd':
 				args.maxdepth = atoi(optarg);

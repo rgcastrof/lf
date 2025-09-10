@@ -1,10 +1,10 @@
 .POSIX:
 
 NAME    = lf
-VERSION = 0.9
+VERSION = 1.6
 
 CC     = cc
-CFLAGS = -std=c99 -D_POSIX_C_SOURCE=200809L -D_DEFAULT_SOURCE -Wall -Wextra -pedantic
+CFLAGS = -std=c99 -D_DEFAULT_SOURCE -Wall -Wextra -pedantic -DVERSION=\"$(VERSION)\"
 
 BIN_DIR = /usr/local/bin
 
