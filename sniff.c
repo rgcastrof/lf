@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 	while ((opt = getopt(argc, argv, "hvd:o:p")) != -1) {
 		switch (opt) {
 			case 'v':
-				puts("lf-"VERSION);
+				puts("sniff-"VERSION);
 				return EXIT_SUCCESS;
 			case 'd':
 				args.maxdepth = atoi(optarg);
@@ -174,7 +174,7 @@ fatal(FILE *stream, const char *fmt, ...)
 static void
 usage(void)
 {
-	printf("Usage: lf [-h] [-v] [-d depth] [-o file] [-p] [path] [filename]\n\n"
+	printf("Usage: sniff [-h] [-v] [-d depth] [-o file] [-p] [path] [filename]\n\n"
 			"Options:\n"
 			"  -d depth		Limit search to a maximum directory depth\n"
 			"  -o file		Write output to the specified file instead of stdout\n"
