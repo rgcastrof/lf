@@ -9,7 +9,6 @@
 #define MAXLEN 4096
 #define VERSION "lf-0.9"
 
-static void find(const char *path, const char *file);
 static int isdir(const char *arg);
 static int isdotdir(unsigned char type, const char *name);
 static int matchfile(unsigned char type, const char *name, const char *file);
@@ -21,6 +20,7 @@ typedef struct {
 	FILE *out;
 } Args;
 
+static void find(const Args *args, const char *currentpath, int depth);
 static int isempty(const char *file);
 static void error(const char *fmt, ...);
 static void fatal(FILE *stream, const char *fmt, ...);
@@ -55,23 +55,33 @@ main(int argc, char *argv[])
 
 static void
 find(const char *path, const char *file)
+static void
+find(const Args *args, const char *currentpath, int depth)
 {
-	DIR *dir = opendir(path);
+	DIR *dir = opendir(currentpath);
 
-	if (!dir) {
-		error("Could not open dir: %s", path);
+	if (args->maxdepth >= 0 && depth > args->maxdepth)
 		return;
-	};
+	
+	if (!dir) {
+		error("Could not open dir: %s", currentpath);
+		return;
+	}
 
 	struct dirent *entry;
 	while ((entry = readdir(dir))) {
-		if (isdotdir(entry->d_type, entry->d_name)) continue;
+		if (isdotdir(entry->d_type, entry->d_name))
+			continue;
 
 		char fullpath[MAXLEN];
-		snprintf(fullpath, MAXLEN, "%s%s%s", path, (path[strlen(path)-1] == '/') ? "" : "/", entry->d_name);
+		snprintf(fullpath, MAXLEN, "%s%s%s",
+			currentpath,
+			(currentpath[strlen(currentpath)-1] == '/') ? "" : "/", entry->d_name);
 
-		if (matchfile(entry->d_type, entry->d_name, file) || isempty(file)) printf("%s\n", fullpath);
-		if (entry->d_type == DT_DIR) find(fullpath, file);
+		if (matchfile(entry->d_type, entry->d_name, args->file) || isempty(args->file))
+			fprintf(args->out, "%s\n", fullpath);
+		if (entry->d_type == DT_DIR)
+			find(args, fullpath, depth + 1);
 	}
 
 	closedir(dir);
