@@ -8,8 +8,6 @@
 
 #define MAXLEN 4096
 #define VERSION "lf-0.9"
-
-static int isdir(const char *arg);
 static int isdotdir(unsigned char type, const char *name);
 static int matchfile(unsigned char type, const char *name, const char *file);
 
@@ -87,12 +85,7 @@ find(const Args *args, const char *currentpath, int depth)
 	closedir(dir);
 }
 
-static int
-isdir(const char *arg)
 {
-	struct stat pathstat;
-	if (stat(arg, &pathstat)) fatal(stderr, "Failed to access path");
-	return S_ISDIR(pathstat.st_mode);
 }
 
 static int
