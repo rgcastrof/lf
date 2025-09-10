@@ -29,11 +29,12 @@ static void usage(void);
 int
 main(int argc, char *argv[])
 {
-	char cwd[MAXLEN];
+	Args args;
+	char *outfile = NULL;
+	initargs(&args);
 
 	if (argc == 1) {
-		if (!getcwd(cwd, MAXLEN)) fatal(stderr, "Failed getcwd");
-		find(cwd, "");
+		find(&args, args.startpath, 0);
 		return EXIT_SUCCESS;
 	}
 	if (argc == 2) {
