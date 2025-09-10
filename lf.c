@@ -16,6 +16,7 @@ typedef struct {
 	FILE *out;
 } Args;
 
+static void initargs(Args *args);
 static void find(const Args *args, const char *currentpath, int depth);
 static int isdotdir(const unsigned char type, const char *name);
 static int matchfile(const unsigned char type, const char *name, const char *file);
@@ -52,7 +53,14 @@ main(int argc, char *argv[])
 }
 
 static void
-find(const char *path, const char *file)
+initargs(Args *args)
+{
+	args->startpath = ".";
+	args->file = "";
+	args->maxdepth = -1;
+	args->out = stdout;
+}
+
 static void
 find(const Args *args, const char *currentpath, int depth)
 {
