@@ -163,8 +163,10 @@ fatal(FILE *stream, const char *fmt, ...)
 static void
 usage(void)
 {
-	printf("Usage: lf [-h] [-v] [path] [filename]\n\n"
+	printf("Usage: lf [-h] [-v] [-d] [-o] [path] [filename]\n\n"
 			"Options:\n"
+			"  -d		Define max depth\n"
+			"  -o		Write output to a file\n"
 			"  -h		Show this help message and exit\n"
 			"  -v		Show version\n");
 	exit(EXIT_SUCCESS);
