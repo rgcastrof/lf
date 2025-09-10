@@ -13,6 +13,14 @@ static void find(const char *path, const char *file);
 static int isdir(const char *arg);
 static int isdotdir(unsigned char type, const char *name);
 static int matchfile(unsigned char type, const char *name, const char *file);
+
+typedef struct {
+	const char *startpath;
+	const char *file;
+	int maxdepth;
+	FILE *out;
+} Args;
+
 static int isempty(const char *file);
 static void error(const char *fmt, ...);
 static void fatal(FILE *stream, const char *fmt, ...);
