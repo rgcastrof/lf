@@ -175,11 +175,12 @@ fatal(FILE *stream, const char *fmt, ...)
 static void
 usage(void)
 {
-	printf("Usage: lf [-h] [-v] [-d] [-o] [path] [filename]\n\n"
+	printf("Usage: lf [-h] [-v] [-d depth] [-o file] [-p] [path] [filename]\n\n"
 			"Options:\n"
-			"  -d		Define max depth\n"
-			"  -o		Write output to a file\n"
-			"  -h		Show this help message and exit\n"
-			"  -v		Show version\n");
+			"  -d depth		Limit search to a maximum directory depth\n"
+			"  -o file		Write output to the specified file instead of stdout\n"
+			"  -p			Enable partial match on filename\n"
+			"  -h			Show this help message and exit\n"
+			"  -v			Show version\n");
 	exit(EXIT_SUCCESS);
 }
