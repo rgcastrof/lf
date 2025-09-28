@@ -19,8 +19,7 @@ typedef struct {
 static void initargs(Args *args);
 static void find(const Args *args, const char *currentpath, int depth);
 static int isdotdir(const unsigned char type, const char *name);
-static int matchfile(const unsigned char type, const char *name, const char *file);
-static int matchpartial(const unsigned char type, const char *name, const char *file);
+static int matchentry(const Args *args, const struct dirent *entry);
 static int isempty(const char *file);
 static void writefile(FILE **out, char *outfile);
 static void error(const char *fmt, ...);
@@ -111,8 +110,7 @@ find(const Args *args, const char *currentpath, int depth)
 			currentpath,
 			(currentpath[strlen(currentpath)-1] == '/') ? "" : "/", entry->d_name);
 
-		if (matchfile(entry->d_type, entry->d_name, args->file) || isempty(args->file) ||
-		(args->pflag && matchpartial(entry->d_type, entry->d_name, args->file)))
+		if (matchentry(args, entry) || isempty(args->file))
 			fprintf(args->out, "%s\n", fullpath);
 		if (entry->d_type == DT_DIR)
 			find(args, fullpath, depth + 1);
@@ -136,15 +134,13 @@ isdotdir(const unsigned char type, const char *name)
 }
 
 static int
-matchfile(const unsigned char type, const char *name, const char *file)
+matchentry(const Args *args, const struct dirent *entry)
 {
-	return type == DT_REG && !strcmp(name, file);
-}
+	if ((args->type == 'd' && entry->d_type != DT_DIR) ||
+		(args->type == 'f' && entry->d_type != DT_REG))
+		return 0;
 
-static int
-matchpartial(const unsigned char type, const char *name, const char *file)
-{
-	return type == DT_REG && strstr(name, file);
+	return args->pflag ? strstr(entry->d_name, args->file) != NULL : !strcmp(entry->d_name, args->file);
 }
 
 static int
