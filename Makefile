@@ -1,7 +1,7 @@
 .POSIX:
 
 NAME    = sniff
-VERSION = 1.6
+VERSION = 1.7
 
 CC     = cc
 CFLAGS = -std=c99 -D_DEFAULT_SOURCE -Wall -Wextra -pedantic -DVERSION=\"$(VERSION)\"
