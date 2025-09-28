@@ -11,6 +11,7 @@ typedef struct {
 	const char *startpath;
 	const char *file;
 	int maxdepth;
+	char type;
 	FILE *out;
 	int pflag;
 } Args;
@@ -39,7 +40,7 @@ main(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	while ((opt = getopt(argc, argv, "hvd:o:p")) != -1) {
+	while ((opt = getopt(argc, argv, "hvd:o:t:p")) != -1) {
 		switch (opt) {
 			case 'v':
 				puts("sniff-"VERSION);
@@ -49,6 +50,9 @@ main(int argc, char *argv[])
 				break;
 			case 'o':
 				outfile = optarg;
+				break;
+			case 't':
+				args.type = optarg[0];
 				break;
 			case 'p':
 				args.pflag = 1;
@@ -79,6 +83,7 @@ initargs(Args *args)
 	args->startpath = ".";
 	args->file = "";
 	args->maxdepth = -1;
+	args->type = '\0';
 	args->out = stdout;
 	args->pflag = 0;
 }
